@@ -1,27 +1,28 @@
-import {Request,Response} from 'express';
+import * as express from 'express';
+import * as config from 'config';
+import * as mongoose from 'mongoose';
+import * as cors from 'cors';
+import todosRoutes from './routes/todos.routes';
+import tasksRoutes from './routes/tasks.routes';
 
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-
-const PORT = process.env.PORT || 8088;
-const todos = require('./routers/todos-router');
-
+const PORT = config.get('port') || 8088;
+const dbUrl = config.get('dbUrl');
 const app = express();
 
-process.on('unhandledRejection', (err)=> {
-    console.log(err);
-});
+process.on('unhandledRejection', (err) => console.log(err));
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
-app.get('/', ((req: Request, res: Response) => {
-    res.send('home');
-}));
+app.use('/todos', todosRoutes);
+app.use('/tasks', tasksRoutes);
 
-app.use('/todos', todos);
-mongoose.connect(`mongodb+srv://admin:nkjGTJxiBG83fqr@todos-cluster.v8fim.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`);
+mongoose
+    .connect(dbUrl)
+    .then(() => {
+        console.log('Database connection established')
+    });
 
 app.listen(PORT, () => {
     console.log(`Server started on ${PORT} port.`);

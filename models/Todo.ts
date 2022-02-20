@@ -1,9 +1,9 @@
-const {Schema, model} = require('mongoose');
+import {Schema, model} from 'mongoose';
 
 const Todo = new Schema({
-    _id: Number,
+    _id: String,
     title: String,
-    completed: Boolean
+    description: String
 });
 
-module.exports = model('Todo', Todo);
+export default model('Todo', Todo);
