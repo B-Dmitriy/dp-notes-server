@@ -7,56 +7,112 @@ class TodosController {
 
         const result = await TodosService.getTodos();
 
-        res
-            .status(200)
-            .send(result);
+        if (result) {
+            res
+                .status(200)
+                .send(result);
+            return;
+        } else {
+            res
+                .status(500)
+                .send('Data missing from database');
+            return;
+        }
     }
 
     async createTodo(req: Request, res: Response) {
 
         const {title} = req.body;
 
+        if (title === undefined) {
+            res
+                .status(400)
+                .send('Request body missing property title');
+            return;
+        } else if (title === '') {
+            res
+                .status(400)
+                .send('Title must contain at least 1 character ');
+            return;
+        }
+
         const result = await TodosService.createTodo(title);
 
-        res
-            .status(201)
-            .send(result);
+        if (result) {
+            res
+                .status(201)
+                .send(result);
+            return;
+        } else {
+            res
+                .status(500)
+                .send('Error creating to-do list');
+            return;
+        }
     }
 
     async updateTodo(req: Request, res: Response) {
+
         const _id = req.params.id;
 
         const {title, description} = req.body;
 
+        if (_id === undefined) {
+            res
+                .status(400)
+                .send('_id parameter missing');
+            return;
+        } else if (title === undefined) {
+            res
+                .status(400)
+                .send('Request body missing property title');
+            return;
+        } else if (description === undefined) {
+            res
+                .status(400)
+                .send('Request body missing property description');
+            return;
+        }
+
         const result = await TodosService.updateTodo(_id, title, description);
 
-        res
-            .status(200)
-            .send(result);
+        if (result) {
+            res
+                .status(200)
+                .send(result);
+            return;
+        } else {
+            res
+                .status(500)
+                .send('Error updating to-do list');
+            return;
+        }
     }
 
     async deleteTodo(req: Request, res: Response) {
 
         const _id = req.params.id;
 
+        if (_id === undefined) {
+            res
+                .status(400)
+                .send('_id parameter missing');
+            return;
+        }
+
         const result = await TodosService.deleteTodo(_id);
-        console.log(result)
-        res
-            .status(204)
-            .send(result);
-    }
 
-    async getTask(req: Request, res: Response) {
-
-        const _id = req.params.id;
-
-        const {title, description} = req.body;
-
-        const result = await TodosService.updateTodo(_id, title, description);
-
-        res
-            .status(200)
-            .send(result);
+        if (result) {
+            res
+                .status(204)
+                .send(result);
+            return;
+        } else {
+            res
+                .status(500)
+                .send('Error deleting to-do list');
+            return;
+        }
     }
 }
 
