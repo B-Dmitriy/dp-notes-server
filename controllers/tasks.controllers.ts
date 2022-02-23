@@ -74,7 +74,8 @@ class TasksController {
 
     async updateTask(req: Request, res: Response) {
 
-        const {_todoId, _id} = req.params;
+        const _id = req.params.id;
+        const _todoId = req.params.todoId;
 
         const {title, completed, deadline, description} = req.body;
 
