@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Tag struct {
@@ -74,8 +75,51 @@ func getTagById(writer http.ResponseWriter, request *http.Request, id int) error
 
 		_, err = writer.Write([]byte(`{ "message": "Tag not found"}`))
 		if err != nil {
-			return err
+			writer.WriteHeader(500)
 		}
+	}
+
+	return nil
+}
+
+func createTag(writer http.ResponseWriter, request *http.Request) error {
+	// Читаем файл
+	jsonFile, _ := os.ReadFile("../../data/data.json")
+
+	// Создаём переменную для Tags
+	var tagsList Tags
+
+	err := json.Unmarshal(jsonFile, &tagsList)
+	if err != nil {
+		return err
+	}
+
+	var body Tag
+
+	_ = json.NewDecoder(request.Body).Decode(&body)
+
+	newTag := Tag{
+		Id:          int(time.Now().Unix()),
+		Title:       body.Title,
+		Description: body.Description,
+	}
+
+	tagsList.Tags = append(tagsList.Tags, newTag)
+
+	jsonTags, _ := json.Marshal(tagsList)
+
+	err = os.WriteFile("../../data/data.json", jsonTags, 666)
+	if err != nil {
+		writer.WriteHeader(500)
+		return err
+	}
+
+	writer.Header().Add("Content-Type", "application/json")
+	writer.WriteHeader(201)
+	err = json.NewEncoder(writer).Encode(newTag)
+
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -94,6 +138,8 @@ func TagsHandler(writer http.ResponseWriter, request *http.Request) {
 
 		_ = getTagsList(writer, request)
 		break
+	case "POST":
+		_ = createTag(writer, request)
 	default:
 		fmt.Println("Default")
 	}
