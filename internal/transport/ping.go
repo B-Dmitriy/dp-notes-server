@@ -7,5 +7,8 @@ import (
 
 func PingHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: ping")
-	fmt.Fprintf(w, "Ping!")
+	_, err := fmt.Fprintf(w, "Ping!")
+	if err != nil {
+		return
+	}
 }
