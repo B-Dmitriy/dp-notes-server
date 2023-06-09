@@ -7,8 +7,8 @@ import (
 )
 
 func StartServer() {
-	http.HandleFunc("/ping", transport.PingHandler)
-	http.HandleFunc("/tags/", transport.TagsHandler)
+	http.HandleFunc("/api/ping", transport.PingHandler)
+	http.HandleFunc("/api/tags/", transport.TagsHandler)
 
 	err := http.ListenAndServe("localhost:8011", nil)
 	log.Fatal(err)
