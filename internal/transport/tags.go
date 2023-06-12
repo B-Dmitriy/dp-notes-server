@@ -1,6 +1,7 @@
 package transport
 
 import (
+	"dpnotes/pgk/file"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -20,56 +21,58 @@ type Tags struct {
 	Tags []Tag `json:"tags"`
 }
 
-func getTagsList(writer http.ResponseWriter, request *http.Request) error {
+func getTagsList(writer http.ResponseWriter, request *http.Request) {
+	// Обработка паники из пакета file при чтении и парсинге
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println(r)
+		}
+	}()
+
 	// Добавляем заголовок ответа
 	writer.Header().Add("Content-Type", "application/json")
-	// Читаем файл
-	jsonFile, _ := os.ReadFile("../../data/data.json")
-	// Создаём переменную для Tags
-	var result Tags
 
-	err := json.Unmarshal(jsonFile, &result)
-	if err != nil {
-		return err
+	// Читаем JSON из файла
+	result, err := file.ParseFileJson[*Tags]("../../data/data.json")
+
+	// Обработка ошибки если файл не найден или не смог распарситься
+	if err != nil || result == nil {
+		writer.Header().Add("Content-Type", "application/json")
+		writer.WriteHeader(404)
+		_, err = writer.Write([]byte(`{ "message": "Tags not found"}`))
+		if err != nil {
+			writer.WriteHeader(500)
+		}
 	}
-
+	// Отправляем ответ
 	err = json.NewEncoder(writer).Encode(result.Tags)
 	if err != nil {
-		return err
+		writer.WriteHeader(500)
 	}
-
-	return nil
 }
 
 func getTagById(writer http.ResponseWriter, request *http.Request, id int) error {
-	// Читаем файл
-	jsonFile, _ := os.ReadFile("../../data/data.json")
+	// Читаем JSON из файла
+	tagsList, err := file.ParseFileJson[*Tags]("../../data/data.json")
 
-	// Создаём переменную для Tags
-	var tagsList Tags
-
-	err := json.Unmarshal(jsonFile, &tagsList)
-	if err != nil {
-		return err
-	}
-
-	var result Tag
-
+	var resultTag Tag
 	for i := range tagsList.Tags {
 		if tagsList.Tags[i].Id == id {
-			result = tagsList.Tags[i]
+			resultTag = tagsList.Tags[i]
 			break
 		}
 	}
 
-	if result.Id != 0 { // Добавляем заголовок ответа
+	// Отправляем ответ
+	if resultTag.Id != 0 {
 		writer.Header().Add("Content-Type", "application/json")
-		err = json.NewEncoder(writer).Encode(result)
+		err = json.NewEncoder(writer).Encode(resultTag)
 
 		if err != nil {
 			return err
 		}
 	} else {
+		// Отправляем ответ, если тэг не найден
 		writer.Header().Add("Content-Type", "application/json")
 		writer.WriteHeader(404)
 
@@ -226,7 +229,7 @@ func TagsHandler(writer http.ResponseWriter, request *http.Request) {
 			break
 		}
 
-		_ = getTagsList(writer, request)
+		getTagsList(writer, request)
 		break
 	case "POST":
 		_ = createTag(writer, request)
