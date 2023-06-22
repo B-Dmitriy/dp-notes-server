@@ -7,6 +7,8 @@ import (
 )
 
 func StartServer() {
+	http.HandleFunc("/admin", transport.AdminHandler)
+	http.HandleFunc("/monitoring", transport.MonitoringHandler)
 	http.HandleFunc("/api/ping", transport.PingHandler)
 	http.HandleFunc("/api/tags/", transport.TagsHandler)
 
