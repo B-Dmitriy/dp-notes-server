@@ -1,10 +1,15 @@
 package transport
 
 import (
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 )
+
+type Statistic map[string]string
 
 func MonitoringHandler(writer http.ResponseWriter, request *http.Request) {
 	if request.Method != http.MethodGet {
@@ -16,7 +21,23 @@ func MonitoringHandler(writer http.ResponseWriter, request *http.Request) {
 		log.Fatal(err)
 	}
 
-	err = t.Execute(writer, "Title monitoring")
+	tagsByteSlice, _ := os.ReadFile("../../data/data.json")
+
+	var tagsJson Tags
+
+	err = json.Unmarshal(tagsByteSlice, &tagsJson)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stat := Statistic{
+		"TagsCount": "",
+	}
+
+	stat["TagsCount"] = strconv.Itoa(len(tagsJson.Tags))
+
+	err = t.Execute(writer, stat)
 	if err != nil {
 		log.Fatal(err)
 	}

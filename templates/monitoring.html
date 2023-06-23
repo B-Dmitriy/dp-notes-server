@@ -1,5 +1,9 @@
 {{ define "content" }}
-<h3>monitoring</h3>
-<p>{{ . }}</p>
-<a href="/admin">Go back</a>
+<h3>Monitoring:</h3>
+<ul>
+    {{ range $key, $value := . }}
+        <li>{{ $key }} - {{ $value }}</li>
+    {{ end }}
+</ul>
+<a href="/admin">Go on admin panel</a>
 {{ end }}

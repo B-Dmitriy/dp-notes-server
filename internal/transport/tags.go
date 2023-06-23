@@ -213,6 +213,7 @@ func putTag(writer http.ResponseWriter, request *http.Request, id int) error {
 }
 
 func TagsHandler(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println(request.Method)
 	switch request.Method {
 	case "GET":
 		id := strings.TrimPrefix(request.URL.Path, "/api/tags/")
