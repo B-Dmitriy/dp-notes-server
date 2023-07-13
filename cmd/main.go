@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"webservice/internal/config"
+	"webservice/internal/server"
 )
 
 func main() {
@@ -12,5 +13,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%+v", c)
+	err = server.NewServer(c.Host, c.Port, c.Endpoint)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("%+v \n", c)
 }

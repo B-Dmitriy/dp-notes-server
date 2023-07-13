@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	u "webservice/pgk/utils"
 
 	"github.com/spf13/viper"
 )
@@ -13,14 +13,6 @@ type Config struct {
 	User     string
 	Password string
 	Schema   string
-}
-
-func nilReplaceEmptyStr(arg interface{}) string {
-	if arg == nil {
-		return ""
-	} else {
-		return fmt.Sprint(arg)
-	}
 }
 
 func InitConfig() (Config, error) {
@@ -36,12 +28,12 @@ func InitConfig() (Config, error) {
 		return config, err
 	}
 
-	config.Port = nilReplaceEmptyStr(viper.Get("port"))
-	config.Endpoint = nilReplaceEmptyStr(viper.Get("endpoint"))
-	config.Host = nilReplaceEmptyStr(viper.Get("host"))
-	config.User = nilReplaceEmptyStr(viper.Get("user"))
-	config.Password = nilReplaceEmptyStr(viper.Get("password"))
-	config.Schema = nilReplaceEmptyStr(viper.Get("schema"))
+	config.Port = u.NilToStr(viper.Get("port"))
+	config.Endpoint = u.NilToStr(viper.Get("endpoint"))
+	config.Host = u.NilToStr(viper.Get("host"))
+	config.User = u.NilToStr(viper.Get("user"))
+	config.Password = u.NilToStr(viper.Get("password"))
+	config.Schema = u.NilToStr(viper.Get("schema"))
 
 	return config, nil
 }
