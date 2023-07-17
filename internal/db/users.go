@@ -35,7 +35,7 @@ func GetUsers(page, limit string) ([]User, error) {
 		return users, err
 	}
 
-	queryRow := fmt.Sprintf("SELECT * FROM %s.users OFFSET %d LIMIT %d;", Postgres.schema, offset, limitInt)
+	queryRow := fmt.Sprintf("SELECT * FROM %s.users ORDER BY id OFFSET %d LIMIT %d;", Postgres.schema, offset, limitInt)
 
 	rows, err := Postgres.DB.Query(queryRow)
 	if err != nil {
@@ -53,7 +53,6 @@ func GetUsers(page, limit string) ([]User, error) {
 		log.Fatal(err)
 	}
 
-	fmt.Println(total)
 	return users, nil
 }
 
@@ -79,6 +78,25 @@ func GetUserById(id string) (User, error) {
 
 func CreateUser(name, email string) error {
 	_, err := Postgres.DB.Exec("INSERT INTO test.users (name, email) VALUES ($1, $2)", name, email)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdateUser(id, name, email string) error {
+	setParamsString := ""
+
+	if name != "" {
+		setParamsString += fmt.Sprintf("name='%s'", name)
+	}
+	if email != "" {
+		setParamsString += fmt.Sprintf(", email='%s'", email)
+	}
+	queryString := fmt.Sprintf("UPDATE test.users SET %s WHERE id = %s;", setParamsString, id)
+
+	fmt.Println(queryString)
+	_, err := Postgres.DB.Exec(queryString)
 	if err != nil {
 		return err
 	}

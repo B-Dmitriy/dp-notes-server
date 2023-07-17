@@ -17,6 +17,7 @@ func NewServer(host, port, endpoint string) error {
 	r.HandleFunc("/users", GetUsers).Methods("GET")
 	r.HandleFunc("/users", CreateUser).Methods("POST")
 	r.HandleFunc("/users/{user_id}", GetUserById).Methods("GET")
+	r.HandleFunc("/users/{user_id}", UpdateUser).Methods("PUT")
 	r.HandleFunc("/users/{user_id}", DeleteUserById).Methods("DELETE")
 
 	r.HandleFunc("/comments", CommentsHandler)

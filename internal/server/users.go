@@ -54,6 +54,19 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	_ = db.CreateUser(user.Name, user.Email)
 }
 
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	var user db.User
+
+	upVars := mux.Vars(r)
+
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		log.Fatalln("There was an error decoding the request body into the struct")
+	}
+	fmt.Printf("%+v \n", user)
+	_ = db.UpdateUser(upVars["user_id"], user.Name, user.Email)
+}
+
 func DeleteUserById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
