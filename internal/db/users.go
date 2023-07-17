@@ -7,24 +7,35 @@ import (
 )
 
 type User struct {
-	id    int
-	name  string
-	email string
+	Id    int    `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
-const (
-	LIMIT = 10
-)
-
-func GetUsers(page string) ([]User, error) {
-	var offset int
+func GetUsers(page, limit string) ([]User, error) {
+	var offset int = 0
 	var users []User
+	var total int
 
-	if pageInt, err := strconv.Atoi(page); err != nil {
-		offset = pageInt * LIMIT
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		return users, fmt.Errorf("page parse error: %s", err)
+	}
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		return users, fmt.Errorf("limit parse error: %s", err)
 	}
 
-	queryRow := fmt.Sprintf("SELECT * FROM %s.users LIMIT %d OFFSET %d", Postgres.schema, LIMIT, offset)
+	if pageInt > 1 {
+		offset = (pageInt - 1) * limitInt
+	}
+	// TODO refactor
+	err = Postgres.DB.QueryRow("SELECT count(*) FROM test.users ").Scan(&total)
+	if err != nil {
+		return users, err
+	}
+
+	queryRow := fmt.Sprintf("SELECT * FROM %s.users OFFSET %d LIMIT %d;", Postgres.schema, offset, limitInt)
 
 	rows, err := Postgres.DB.Query(queryRow)
 	if err != nil {
@@ -33,7 +44,7 @@ func GetUsers(page string) ([]User, error) {
 
 	for rows.Next() {
 		var user User
-		if err := rows.Scan(&user.id, &user.name, &user.email); err != nil {
+		if err := rows.Scan(&user.Id, &user.Name, &user.Email); err != nil {
 			log.Fatal(err)
 		}
 		users = append(users, user)
@@ -42,6 +53,7 @@ func GetUsers(page string) ([]User, error) {
 		log.Fatal(err)
 	}
 
+	fmt.Println(total)
 	return users, nil
 }
 
@@ -57,12 +69,20 @@ func GetUserById(id string) (User, error) {
 
 	row := Postgres.DB.QueryRow(queryRow)
 
-	err := row.Scan(&user.id, &user.name, &user.email)
+	err := row.Scan(&user.Id, &user.Name, &user.Email)
 	if err != nil {
 		return user, err
 	}
 
 	return user, nil
+}
+
+func CreateUser(name, email string) error {
+	_, err := Postgres.DB.Exec("INSERT INTO test.users (name, email) VALUES ($1, $2)", name, email)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func DeleteUserById(id string) error {

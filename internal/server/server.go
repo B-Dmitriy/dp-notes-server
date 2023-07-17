@@ -7,10 +7,6 @@ import (
 	"time"
 )
 
-func UsersPostHandler(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "Users POST\n")
-}
-
 func CommentsHandler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "comments\n")
 }
@@ -19,7 +15,7 @@ func NewServer(host, port, endpoint string) error {
 	r := mux.NewRouter().PathPrefix(endpoint).Subrouter()
 
 	r.HandleFunc("/users", GetUsers).Methods("GET")
-	r.HandleFunc("/users", UsersPostHandler).Methods("POST")
+	r.HandleFunc("/users", CreateUser).Methods("POST")
 	r.HandleFunc("/users/{user_id}", GetUserById).Methods("GET")
 	r.HandleFunc("/users/{user_id}", DeleteUserById).Methods("DELETE")
 
