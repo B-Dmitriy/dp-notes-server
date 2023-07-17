@@ -14,7 +14,7 @@ func Start() {
 		log.Fatal(err)
 	}
 
-	err = db.InitDB(cfg.User, cfg.Password)
+	err = db.InitDB(cfg.User, cfg.Password, cfg.Schema)
 	if err != nil {
 		log.Fatal(err)
 	}

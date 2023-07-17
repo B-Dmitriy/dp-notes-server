@@ -1,16 +1,11 @@
 package server
 
 import (
+	"github.com/gorilla/mux"
 	"io"
 	"net/http"
 	"time"
-
-	"github.com/gorilla/mux"
 )
-
-func UsersHandler(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "Users\n")
-}
 
 func UsersPostHandler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Users POST\n")
@@ -23,9 +18,10 @@ func CommentsHandler(w http.ResponseWriter, r *http.Request) {
 func NewServer(host, port, endpoint string) error {
 	r := mux.NewRouter().PathPrefix(endpoint).Subrouter()
 
-	r.HandleFunc("/users", UsersHandler).Methods("GET")
+	r.HandleFunc("/users", GetUsers).Methods("GET")
 	r.HandleFunc("/users", UsersPostHandler).Methods("POST")
 	r.HandleFunc("/users/{user_id}", GetUserById).Methods("GET")
+	r.HandleFunc("/users/{user_id}", DeleteUserById).Methods("DELETE")
 
 	r.HandleFunc("/comments", CommentsHandler)
 

@@ -2,5 +2,5 @@ port: 8055
 endpoint: /api
 host: localhost
 user: postgres
-password: postgres
+password: 7777
 schema: test
