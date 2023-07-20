@@ -7,12 +7,13 @@ import (
 )
 
 type DataBase struct {
-	DB *sql.DB
+	DB     *sql.DB
+	schema string
 }
 
 var Postgres DataBase
 
-func InitDB(user, password string) error {
+func InitDB(user, password, schema string) error {
 
 	connStr := "user=" + user + " password=" + password + "  dbname=webservice sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
@@ -21,6 +22,7 @@ func InitDB(user, password string) error {
 	}
 
 	Postgres.DB = db
+	Postgres.schema = schema
 
 	return nil
 }
