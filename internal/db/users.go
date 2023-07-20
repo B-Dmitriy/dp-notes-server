@@ -1,3 +1,4 @@
+// Package db ...
 package db
 
 import (
@@ -12,6 +13,7 @@ type User struct {
 	Email string `json:"email"`
 }
 
+// GetUsers ...
 func GetUsers(page, limit string) ([]User, error) {
 	var offset int = 0
 	var users []User
@@ -29,8 +31,10 @@ func GetUsers(page, limit string) ([]User, error) {
 	if pageInt > 1 {
 		offset = (pageInt - 1) * limitInt
 	}
-	// TODO refactor
-	err = Postgres.DB.QueryRow("SELECT count(*) FROM test.users ").Scan(&total)
+
+	queryRowTotal := fmt.Sprintf("SELECT count(*) FROM %s.users;", Postgres.schema)
+
+	err = Postgres.DB.QueryRow(queryRowTotal).Scan(&total)
 	if err != nil {
 		return users, err
 	}
@@ -56,6 +60,7 @@ func GetUsers(page, limit string) ([]User, error) {
 	return users, nil
 }
 
+// GetUserById ...
 func GetUserById(id string) (User, error) {
 	var user User
 
@@ -76,14 +81,19 @@ func GetUserById(id string) (User, error) {
 	return user, nil
 }
 
+// CreateUser ...
 func CreateUser(name, email string) error {
-	_, err := Postgres.DB.Exec("INSERT INTO test.users (name, email) VALUES ($1, $2)", name, email)
+	// TODO name and email validate
+	_, err := Postgres.DB.Exec("INSERT INTO test.users (name, email) VALUES ($1, $2) RETURNING id", name, email)
+
 	if err != nil {
 		return err
 	}
+	// TODO must be return user error
 	return nil
 }
 
+// UpdateUser ...
 func UpdateUser(id, name, email string) error {
 	setParamsString := ""
 
@@ -95,14 +105,15 @@ func UpdateUser(id, name, email string) error {
 	}
 	queryString := fmt.Sprintf("UPDATE test.users SET %s WHERE id = %s;", setParamsString, id)
 
-	fmt.Println(queryString)
 	_, err := Postgres.DB.Exec(queryString)
 	if err != nil {
 		return err
 	}
+	// TODO must be return user error
 	return nil
 }
 
+// DeleteUserById ...
 func DeleteUserById(id string) error {
 	// SQL injection check
 	if _, err := strconv.Atoi(id); err != nil {
@@ -115,6 +126,6 @@ func DeleteUserById(id string) error {
 	if err != nil {
 		return err
 	}
-
+	// TODO  must be return user_id error
 	return nil
 }

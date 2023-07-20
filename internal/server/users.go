@@ -8,6 +8,12 @@ import (
 	"webservice/internal/db"
 
 	"github.com/gorilla/mux"
+	h "webservice/pgk/http"
+)
+
+const (
+	defaultLimit = "10"
+	defaultPage  = "1"
 )
 
 func GetUsers(w http.ResponseWriter, r *http.Request) {
@@ -15,11 +21,11 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	limit := r.FormValue("limit")
 
 	if page == "" {
-		page = "1"
+		page = defaultPage
 	}
 
 	if limit == "" {
-		limit = "10"
+		limit = defaultLimit
 	}
 
 	users, err := db.GetUsers(page, limit)
@@ -27,7 +33,10 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	fmt.Println(users)
+	err = h.WriteJSON(w, http.StatusOK, users)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func GetUserById(w http.ResponseWriter, r *http.Request) {
